@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Token Getter</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 800px;
+      width: 100%;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    input, button {
+      width: calc(100% - 22px);
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+.result {
+  text-align: left;
+  margin-top: 20px;
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  overflow: auto; /* Add overflow property to enable scrolling */
+}
+
+.result > div {
+  margin-bottom: 10px; /* Add margin between tokens */
+  white-space: pre-wrap;
+    }
+    
+    .spinner {
+      display: none;
+      margin-top: 10px;
+    }
+
+    .spinner i {
+      font-size: 24px;
+      color: #007bff;
+    }
+
+    .copy-button {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .copy-button button {
+      flex: 1;
+      padding: 10px 20px;
+      margin: 5px;
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+
+    .copy-button button:hover {
+      background-color: #218838;
+      transform: translateY(-2px);
+    }
+
+    footer {
+      text-align: center;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      width: 100%;
+      position: fixed;
+      bottom: 0;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Token Getter <i class="fas fa-key"></i></h1>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button id="getTokenButton"><i class="fas fa-download"></i> Get Token</button>
+    <div id="spinner" class="spinner"><i class="fas fa-spinner fa-spin"></i></div>
+    <div id="result" class="result hidden">
+      <div id="tokenEAAADY"></div>
+      <div id="tokenEAAAU"></div>
+      <div id="cookie"></div>
+    </div>
+    <div class="copy-button hidden" id="copyButtons">
+      <button onclick="copyToClipboard('tokenEAAADY')">Copy EAAADY Token</button>
+      <button onclick="copyToClipboard('tokenEAAAU')">Copy EAAAU Token</button>
+      <button onclick="copyToClipboard('cookie')">Copy Cookie</button>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2024 HeruDev. All rights reserved.
+  </footer>
+
+  <script>
+    document.getElementById('getTokenButton').addEventListener('click', async function() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const resultDiv = document.getElementById('result');
+      const spinner = document.getElementById('spinner');
+      const copyButtons = document.getElementById('copyButtons');
+      resultDiv.classList.add('hidden');
+      copyButtons.classList.add('hidden');
+      resultDiv.innerHTML = '';
+      spinner.style.display = 'block';
+
+      if (!username || !password) {
+        alert('Please provide both username and password!');
+        spinner.style.display = 'none';
+        return;
+      }
+
+      try {
+        const response = await axios.get(`/gettoken?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`);
+        const { token, token2, cookie } = response.data;
+        resultDiv.innerHTML = `
+          <div id="tokenEAAADY">𝗘𝗔𝗔𝗗6𝗩7 𝗧𝗢𝗞𝗘𝗡\n${token}</div>
+          <div id="tokenEAAAU">𝗘𝗔𝗔𝗔𝗔𝗨 𝗧𝗢𝗞𝗘𝗡\n${token2}</div>
+          <div id="cookie">𝗖𝗢𝗢𝗞𝗜𝗘 🍪\n${cookie}</div>`;
+        resultDiv.classList.remove('hidden');
+        copyButtons.classList.remove('hidden');
+      } catch (error) {
+        alert('An error occurred while getting the token!');
+        console.error(error);
+      } finally {
+        spinner.style.display = 'none';
+      }
+    });
+
+    function copyToClipboard(elementId) {
+      const el = document.getElementById(elementId);
+      const text = el.innerText || el.textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        alert(`Copied ${elementId} to clipboard`);
+      }).catch(err => {
+        console.error('Failed to copy text: ', err);
+      });
+    }
+  </script>
+</body>
+</html>
